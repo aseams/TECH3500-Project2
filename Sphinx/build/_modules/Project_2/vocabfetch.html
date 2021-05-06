@@ -1,0 +1,242 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project_2.vocabfetch &#8212; Project 2  documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for Project_2.vocabfetch</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">argv</span>
+<span class="kn">from</span> <span class="nn">re</span> <span class="kn">import</span> <span class="n">match</span>
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">from</span> <span class="nn">pynput</span> <span class="kn">import</span> <span class="n">keyboard</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="kn">import</span> <span class="n">Fore</span><span class="p">,</span> <span class="n">Style</span>
+
+<div class="viewcode-block" id="Keys"><a class="viewcode-back" href="../../index.html#Project_2.vocabfetch.Keys">[docs]</a><span class="k">class</span> <span class="nc">Keys</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Class containing two static utility functions</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	
+<div class="viewcode-block" id="Keys.on_keypress"><a class="viewcode-back" href="../../index.html#Project_2.vocabfetch.Keys.on_keypress">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">on_keypress</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;On key PRESS do nothing&quot;&quot;&quot;</span>
+		<span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Keys.on_keyrelease"><a class="viewcode-back" href="../../index.html#Project_2.vocabfetch.Keys.on_keyrelease">[docs]</a>	<span class="nd">@staticmethod</span>
+	<span class="k">def</span> <span class="nf">on_keyrelease</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;On key RELEASE, check what key it is.</span>
+<span class="sd">		If key is &#39;M&#39;, display another line of output.</span>
+<span class="sd">		If key is &quot;Q&quot;, quit displaying output and return to shell.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="n">keyboard</span><span class="o">.</span><span class="n">KeyCode</span><span class="o">.</span><span class="n">from_char</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">):</span>
+			<span class="k">try</span><span class="p">:</span>
+				<span class="nb">print</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+			<span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+				<span class="k">return</span> <span class="kc">False</span>
+		<span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="n">keyboard</span><span class="o">.</span><span class="n">KeyCode</span><span class="o">.</span><span class="n">from_char</span><span class="p">(</span><span class="s1">&#39;q&#39;</span><span class="p">):</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Quit&#39;</span><span class="p">)</span>
+			<span class="k">return</span> <span class="kc">False</span></div></div>
+
+<div class="viewcode-block" id="KeyListener"><a class="viewcode-back" href="../../index.html#Project_2.vocabfetch.KeyListener">[docs]</a><span class="k">class</span> <span class="nc">KeyListener</span><span class="p">(</span><span class="n">Keys</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Class containing init and listener() to start/end keylogging.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+		<span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">types</span><span class="o">.</span><span class="n">GeneratorType</span><span class="p">):</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; Passed </span><span class="si">{</span><span class="n">obj</span><span class="si">!r}</span><span class="s2"> isn&#39;t generator&quot;</span><span class="p">)</span>
+		<span class="n">on_keyrelease</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">Keys</span><span class="o">.</span><span class="n">on_keyrelease</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">obj</span><span class="p">)</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_listener</span> <span class="o">=</span> <span class="n">keyboard</span><span class="o">.</span><span class="n">Listener</span><span class="p">(</span>
+				<span class="n">on_press</span> <span class="o">=</span> <span class="n">Keys</span><span class="o">.</span><span class="n">on_keypress</span><span class="p">,</span>
+				<span class="n">on_release</span> <span class="o">=</span> <span class="n">on_keyrelease</span><span class="p">,</span>
+				<span class="n">suppress</span><span class="o">=</span><span class="kc">True</span>
+		<span class="p">)</span>
+
+	<span class="k">def</span> <span class="nf">listen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_listener</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+		<span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listener</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">_listener</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_listener</span><span class="o">.</span><span class="n">_suppress</span><span class="o">=</span><span class="kc">False</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_listener</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Vocab"><a class="viewcode-back" href="../../index.html#Project_2.vocabfetch.Vocab">[docs]</a><span class="k">class</span> <span class="nc">Vocab</span><span class="p">:</span>
+	<span class="sd">&quot;&quot;&quot;Class containing self init as well as various</span>
+<span class="sd">	webscraping/prettifying functions</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="mi">0</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">descp</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;short&quot;</span><span class="p">,</span> <span class="s2">&quot;long&quot;</span><span class="p">]</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://www.vocabulary.com/dictionary/</span><span class="si">{0}</span><span class="s2">&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">word</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+
+<div class="viewcode-block" id="Vocab.fetchpage"><a class="viewcode-back" href="../../index.html#Project_2.vocabfetch.Vocab.fetchpage">[docs]</a>	<span class="k">def</span> <span class="nf">fetchpage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="sd">&quot;&quot;&quot;Starts a connection to Internet.</span>
+<span class="sd">		Raises connection error if failed.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">word</span> <span class="o">=</span> <span class="n">word</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">_source</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">word</span><span class="p">))</span>
+		<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span><span class="o">.</span><span class="n">ok</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source</span><span class="o">.</span><span class="n">status_code</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Conn. isn</span><span class="se">\&#39;</span><span class="s2">t possible [</span><span class="si">{</span><span class="n">source</span><span class="o">.</span><span class="n">conn</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Vocab.getdata"><a class="viewcode-back" href="../../index.html#Project_2.vocabfetch.Vocab.getdata">[docs]</a>	<span class="k">def</span> <span class="nf">getdata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="sd">&quot;&quot;&quot;Parses HTML document&quot;&quot;&quot;</span>
+		<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_source</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;html.parser&quot;</span><span class="p">)</span>
+		<span class="n">link</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">)</span> <span class="c1"># find all the tags with &lt;p&gt;</span>
+		<span class="k">if</span> <span class="n">link</span><span class="p">:</span>
+			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">descp</span><span class="p">)):</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">descp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">link</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">descp</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+
+		<span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">i</span><span class="o">==</span><span class="s1">&#39;&#39;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">descp</span><span class="p">):</span>
+			<span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Nothing Found&quot;</span><span class="p">)</span></div>
+	
+<div class="viewcode-block" id="Vocab.prettyprint"><a class="viewcode-back" href="../../index.html#Project_2.vocabfetch.Vocab.prettyprint">[docs]</a>	<span class="k">def</span> <span class="nf">prettyprint</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+		<span class="sd">&quot;&quot;&quot;Makes output more bearable&quot;&quot;&quot;</span>
+		<span class="k">def</span> <span class="nf">yieldline</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+			<span class="n">temp</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span>
+			<span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+			<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)):</span>
+				<span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span> <span class="ow">and</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+					<span class="k">yield</span> <span class="n">temp</span>
+					<span class="n">temp</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+					<span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+				<span class="k">elif</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39; &#39;</span> <span class="ow">and</span> <span class="n">n</span><span class="o">+</span><span class="mi">1</span> <span class="o">!=</span> <span class="mi">10</span><span class="p">:</span>
+					<span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+				<span class="n">temp</span> <span class="o">+=</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+				<span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+					<span class="k">yield</span> <span class="n">temp</span>
+
+		<span class="k">def</span> <span class="nf">printline</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+			<span class="sd">&quot;&quot;&quot;Advances output by one line upon release of &quot;M&quot; key&quot;&quot;&quot;</span>
+			<span class="n">a</span> <span class="o">=</span> <span class="n">yieldline</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+			<span class="n">k</span> <span class="o">=</span> <span class="n">KeyListener</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+			<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+			<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+				<span class="k">try</span><span class="p">:</span>
+					<span class="nb">print</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+				<span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+					<span class="k">return</span>
+
+			<span class="n">k</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+		
+		<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Fore</span><span class="o">.</span><span class="n">LIGHTBLUE_EX</span><span class="si">}</span><span class="s2">Short Description : </span><span class="si">{</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="n">printline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">descp</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+		<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">Fore</span><span class="o">.</span><span class="n">LIGHTBLUE_EX</span><span class="si">}</span><span class="s2">Long Description : </span><span class="si">{</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="n">printline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">descp</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="ScrapeMeaning"><a class="viewcode-back" href="../../index.html#Project_2.vocabfetch.ScrapeMeaning">[docs]</a><span class="k">def</span> <span class="nf">ScrapeMeaning</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;Usage : python &lt;filename&gt; word</span>
+<span class="sd">	Python version : 3.0+</span>
+<span class="sd">	Word type : string (or &quot;str&quot;)</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="n">ScrapeMeaning</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+	<span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+		<span class="k">if</span> <span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^[\d\W]+&#39;</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+			<span class="k">return</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Pass a Proper Word&quot;</span><span class="p">)</span>
+		<span class="k">try</span><span class="p">:</span>
+			<span class="n">v</span> <span class="o">=</span> <span class="n">Vocab</span><span class="p">()</span>
+			<span class="n">v</span><span class="o">.</span><span class="n">fetchpage</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+			<span class="n">v</span><span class="o">.</span><span class="n">getdata</span><span class="p">()</span>
+			<span class="n">v</span><span class="o">.</span><span class="n">prettyprint</span><span class="p">()</span>
+		<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+<span class="n">ScrapeMeaning</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Project 2</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Andrew Seamon.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

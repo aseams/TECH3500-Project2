@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to Project 2’s documentation! &#8212; Project 2  documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-project-2-s-documentation">
+<h1>Welcome to Project 2’s documentation!<a class="headerlink" href="#welcome-to-project-2-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="enhance-py">
+<h1>enhance.py<a class="headerlink" href="#enhance-py" title="Permalink to this headline">¶</a></h1>
+<p>Create object to reference the neural network:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sr</span> <span class="o">=</span> <span class="n">dnn_superres</span><span class="o">.</span><span class="n">DnnSuperResImpl_create</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Grab desired model, read it in, and set it to be used.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;LapSRN_x4.pb&quot;</span>
+<span class="n">sr</span><span class="o">.</span><span class="n">readModel</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="n">sr</span><span class="o">.</span><span class="n">setModel</span><span class="p">(</span><span class="s2">&quot;lapsrn&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Ask user for input file and read it in.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">img</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Input File: &quot;</span><span class="p">)</span>
+<span class="n">image</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Do the work and print a success message:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">upsample</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+<span class="n">path</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Successfully upscaled &quot;</span> <span class="o">+</span> <span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Actually do the work and write it to a new file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="s2">&quot;upscaled_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">result</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;wrote upscaled_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; to file&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="module-Project_2.vocabfetch">
+<span id="vocabfetch-py"></span><h1>vocabfetch.py<a class="headerlink" href="#module-Project_2.vocabfetch" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="Project_2.vocabfetch.KeyListener">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">Project_2.vocabfetch.</span></code><code class="sig-name descname"><span class="pre">KeyListener</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Project_2/vocabfetch.html#KeyListener"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Project_2.vocabfetch.KeyListener" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class containing init and listener() to start/end keylogging.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="Project_2.vocabfetch.Keys">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">Project_2.vocabfetch.</span></code><code class="sig-name descname"><span class="pre">Keys</span></code><a class="reference internal" href="_modules/Project_2/vocabfetch.html#Keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Project_2.vocabfetch.Keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class containing two static utility functions</p>
+<dl class="py method">
+<dt id="Project_2.vocabfetch.Keys.on_keypress">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">on_keypress</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Project_2/vocabfetch.html#Keys.on_keypress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Project_2.vocabfetch.Keys.on_keypress" title="Permalink to this definition">¶</a></dt>
+<dd><p>On key PRESS do nothing</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Project_2.vocabfetch.Keys.on_keyrelease">
+<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">on_keyrelease</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Project_2/vocabfetch.html#Keys.on_keyrelease"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Project_2.vocabfetch.Keys.on_keyrelease" title="Permalink to this definition">¶</a></dt>
+<dd><p>On key RELEASE, check what key it is.
+If key is ‘M’, display another line of output.
+If key is “Q”, quit displaying output and return to shell.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="Project_2.vocabfetch.ScrapeMeaning">
+<code class="sig-prename descclassname"><span class="pre">Project_2.vocabfetch.</span></code><code class="sig-name descname"><span class="pre">ScrapeMeaning</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Project_2/vocabfetch.html#ScrapeMeaning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Project_2.vocabfetch.ScrapeMeaning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Usage : python &lt;filename&gt; word
+Python version : 3.0+
+Word type : string (or “str”)</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="Project_2.vocabfetch.Vocab">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">Project_2.vocabfetch.</span></code><code class="sig-name descname"><span class="pre">Vocab</span></code><a class="reference internal" href="_modules/Project_2/vocabfetch.html#Vocab"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Project_2.vocabfetch.Vocab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class containing self init as well as various
+webscraping/prettifying functions</p>
+<dl class="py method">
+<dt id="Project_2.vocabfetch.Vocab.fetchpage">
+<code class="sig-name descname"><span class="pre">fetchpage</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">word</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="_modules/Project_2/vocabfetch.html#Vocab.fetchpage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Project_2.vocabfetch.Vocab.fetchpage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts a connection to Internet.
+Raises connection error if failed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Project_2.vocabfetch.Vocab.getdata">
+<code class="sig-name descname"><span class="pre">getdata</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="_modules/Project_2/vocabfetch.html#Vocab.getdata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Project_2.vocabfetch.Vocab.getdata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses HTML document</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Project_2.vocabfetch.Vocab.prettyprint">
+<code class="sig-name descname"><span class="pre">prettyprint</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="_modules/Project_2/vocabfetch.html#Vocab.prettyprint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#Project_2.vocabfetch.Vocab.prettyprint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes output more bearable</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">Project 2</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Andrew Seamon.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
